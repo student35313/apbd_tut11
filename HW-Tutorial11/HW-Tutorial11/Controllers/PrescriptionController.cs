@@ -43,7 +43,7 @@ public class PrescriptionController : ControllerBase
         try
         {
             await _dbService.AddPrescriptionAsync(creationDto);
-            return Ok("Prescription created successfully.");
+            return Created("", "Prescription created successfully.");
         }
         catch (NotFoundException ex)
         {

@@ -17,7 +17,6 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
         modelBuilder.Entity<Doctor>().HasData(new Doctor
         {
             IdDoctor = 1,
