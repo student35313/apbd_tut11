@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HW_Tutorial11.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250523141743_Init")]
+    [Migration("20250523143432_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -50,7 +50,16 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdDoctor");
 
-                    b.ToTable("Doctor", (string)null);
+                    b.ToTable("Doctor");
+
+                    b.HasData(
+                        new
+                        {
+                            IdDoctor = 1,
+                            Email = "house@example.com",
+                            FirstName = "Gregory",
+                            LastName = "House"
+                        });
                 });
 
             modelBuilder.Entity("HW_Tutorial11.Models.Medicament", b =>
@@ -78,7 +87,16 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdMedicament");
 
-                    b.ToTable("Medicament", (string)null);
+                    b.ToTable("Medicament");
+
+                    b.HasData(
+                        new
+                        {
+                            IdMedicament = 1,
+                            Description = "Anti-inflammatory drug",
+                            Name = "Ibuprofen",
+                            Type = "Painkiller"
+                        });
                 });
 
             modelBuilder.Entity("HW_Tutorial11.Models.Patient", b =>
@@ -104,7 +122,16 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdPatient");
 
-                    b.ToTable("Patient", (string)null);
+                    b.ToTable("Patient");
+
+                    b.HasData(
+                        new
+                        {
+                            IdPatient = 1,
+                            Birthdate = new DateTime(1990, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FirstName = "Lisa",
+                            LastName = "Cuddy"
+                        });
                 });
 
             modelBuilder.Entity("HW_Tutorial11.Models.Prescription", b =>
@@ -133,15 +160,25 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasIndex("IdPatient");
 
-                    b.ToTable("Prescription", (string)null);
+                    b.ToTable("Prescription");
+
+                    b.HasData(
+                        new
+                        {
+                            IdPrescription = 1,
+                            Date = new DateTime(2024, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DueDate = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IdDoctor = 1,
+                            IdPatient = 1
+                        });
                 });
 
             modelBuilder.Entity("HW_Tutorial11.Models.PrescriptionMedicament", b =>
                 {
-                    b.Property<int>("IdMedicament")
+                    b.Property<int>("IdPrescription")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdPrescription")
+                    b.Property<int>("IdMedicament")
                         .HasColumnType("int");
 
                     b.Property<string>("Details")
@@ -152,11 +189,20 @@ namespace HW_Tutorial11.Migrations
                     b.Property<int>("Dose")
                         .HasColumnType("int");
 
-                    b.HasKey("IdMedicament", "IdPrescription");
+                    b.HasKey("IdPrescription", "IdMedicament");
 
-                    b.HasIndex("IdPrescription");
+                    b.HasIndex("IdMedicament");
 
-                    b.ToTable("Prescription_Medicament", (string)null);
+                    b.ToTable("Prescription_Medicament");
+
+                    b.HasData(
+                        new
+                        {
+                            IdPrescription = 1,
+                            IdMedicament = 1,
+                            Details = "Take after meals",
+                            Dose = 2
+                        });
                 });
 
             modelBuilder.Entity("HW_Tutorial11.Models.Prescription", b =>

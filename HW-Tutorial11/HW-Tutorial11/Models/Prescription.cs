@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HW_Tutorial11.Models;
 
+[Table("Prescription")]
 public class Prescription
 {
     [Key]
@@ -16,8 +17,7 @@ public class Prescription
     
     [ForeignKey(nameof(Doctor))]
     public int IdDoctor { get; set; }
-
-    // Навигационные свойства
+    
     public Patient Patient { get; set; }
     public Doctor Doctor { get; set; }
 

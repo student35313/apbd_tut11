@@ -95,7 +95,7 @@ namespace HW_Tutorial11.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Prescription_Medicament", x => new { x.IdMedicament, x.IdPrescription });
+                    table.PrimaryKey("PK_Prescription_Medicament", x => new { x.IdPrescription, x.IdMedicament });
                     table.ForeignKey(
                         name: "FK_Prescription_Medicament_Medicament_IdMedicament",
                         column: x => x.IdMedicament,
@@ -110,6 +110,31 @@ namespace HW_Tutorial11.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Doctor",
+                columns: new[] { "IdDoctor", "Email", "FirstName", "LastName" },
+                values: new object[] { 1, "house@example.com", "Gregory", "House" });
+
+            migrationBuilder.InsertData(
+                table: "Medicament",
+                columns: new[] { "IdMedicament", "Description", "Name", "Type" },
+                values: new object[] { 1, "Anti-inflammatory drug", "Ibuprofen", "Painkiller" });
+
+            migrationBuilder.InsertData(
+                table: "Patient",
+                columns: new[] { "IdPatient", "Birthdate", "FirstName", "LastName" },
+                values: new object[] { 1, new DateTime(1990, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "Lisa", "Cuddy" });
+
+            migrationBuilder.InsertData(
+                table: "Prescription",
+                columns: new[] { "IdPrescription", "Date", "DueDate", "IdDoctor", "IdPatient" },
+                values: new object[] { 1, new DateTime(2024, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Prescription_Medicament",
+                columns: new[] { "IdMedicament", "IdPrescription", "Details", "Dose" },
+                values: new object[] { 1, 1, "Take after meals", 2 });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Prescription_IdDoctor",
                 table: "Prescription",
@@ -121,9 +146,9 @@ namespace HW_Tutorial11.Migrations
                 column: "IdPatient");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Prescription_Medicament_IdPrescription",
+                name: "IX_Prescription_Medicament_IdMedicament",
                 table: "Prescription_Medicament",
-                column: "IdPrescription");
+                column: "IdMedicament");
         }
 
         /// <inheritdoc />

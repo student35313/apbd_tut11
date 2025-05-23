@@ -47,7 +47,7 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdDoctor");
 
-                    b.ToTable("Doctor", (string)null);
+                    b.ToTable("Doctor");
 
                     b.HasData(
                         new
@@ -84,7 +84,7 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdMedicament");
 
-                    b.ToTable("Medicament", (string)null);
+                    b.ToTable("Medicament");
 
                     b.HasData(
                         new
@@ -119,7 +119,7 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasKey("IdPatient");
 
-                    b.ToTable("Patient", (string)null);
+                    b.ToTable("Patient");
 
                     b.HasData(
                         new
@@ -157,7 +157,7 @@ namespace HW_Tutorial11.Migrations
 
                     b.HasIndex("IdPatient");
 
-                    b.ToTable("Prescription", (string)null);
+                    b.ToTable("Prescription");
 
                     b.HasData(
                         new
@@ -172,10 +172,10 @@ namespace HW_Tutorial11.Migrations
 
             modelBuilder.Entity("HW_Tutorial11.Models.PrescriptionMedicament", b =>
                 {
-                    b.Property<int>("IdMedicament")
+                    b.Property<int>("IdPrescription")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdPrescription")
+                    b.Property<int>("IdMedicament")
                         .HasColumnType("int");
 
                     b.Property<string>("Details")
@@ -186,17 +186,17 @@ namespace HW_Tutorial11.Migrations
                     b.Property<int>("Dose")
                         .HasColumnType("int");
 
-                    b.HasKey("IdMedicament", "IdPrescription");
+                    b.HasKey("IdPrescription", "IdMedicament");
 
-                    b.HasIndex("IdPrescription");
+                    b.HasIndex("IdMedicament");
 
-                    b.ToTable("Prescription_Medicament", (string)null);
+                    b.ToTable("Prescription_Medicament");
 
                     b.HasData(
                         new
                         {
-                            IdMedicament = 1,
                             IdPrescription = 1,
+                            IdMedicament = 1,
                             Details = "Take after meals",
                             Dose = 2
                         });
