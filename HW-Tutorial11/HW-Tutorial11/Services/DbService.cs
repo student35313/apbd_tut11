@@ -14,63 +14,82 @@ public class DbService : IDbService
         _context = context;
     }
     
-    public async Task AddPrescriptionAsync(PrescriptionCreationDto creationDto)
-{
-
-    if (creationDto.DueDate < creationDto.Date)
-        throw new BadHttpRequestException("DueDate cannot be earlier than Date.");
-    
-    var medicamentIds = creationDto.Medicaments.Select(m => m.IdMedicament).ToList();
-    var existingMedicaments = await _context.Medicaments
-        .Where(m => medicamentIds.Contains(m.IdMedicament))
-        .Select(m => m.IdMedicament)
-        .ToListAsync();
-
-    if (existingMedicaments.Count != medicamentIds.Count)
-        throw new NotFoundException("One or more medicaments do not exist.");
-    
-    var doctor = await _context.Doctors.FindAsync(creationDto.DoctorId);
-    if (doctor == null)
-        throw new NotFoundException("Doctor not found.");
-    
-    var patient = await _context.Patients.FindAsync(creationDto.Patient.IdPatient);
-    if (patient == null)
+    public async Task AddPrescriptionAsync(PrescriptionCreationDto creationDto) 
     {
-        patient = new Patient
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            FirstName = creationDto.Patient.FirstName,
-            LastName = creationDto.Patient.LastName,
-            Birthdate = creationDto.Patient.Birthdate
-        };
-        _context.Patients.Add(patient);
-    }
-    
-    var prescription = new Prescription
-    {
-        Date = creationDto.Date,
-        DueDate = creationDto.DueDate,
-        Doctor = doctor,
-        Patient = patient
-    };
+            if (creationDto.DueDate < creationDto.Date)
+                throw new BadHttpRequestException("DueDate cannot be earlier than Date.");
+        
+            var medicamentIds = creationDto.Medicaments.Select(m => m.IdMedicament).ToList();
+            var existingMedicaments = await _context.Medicaments
+                .Where(m => medicamentIds.Contains(m.IdMedicament))
+                .Select(m => m.IdMedicament)
+                .ToListAsync();
 
-    _context.Prescriptions.Add(prescription);
-    
-    await _context.SaveChangesAsync();
-    
-    foreach (var m in creationDto.Medicaments)
-    {
-        var prescriptionMedicament = new PrescriptionMedicament
+            if (existingMedicaments.Count != medicamentIds.Count)
+                throw new NotFoundException("One or more medicaments do not exist.");
+        
+            var doctor = await _context.Doctors.FindAsync(creationDto.DoctorId);
+            if (doctor == null)
+                throw new NotFoundException("Doctor not found.");
+        
+            var patient = await _context.Patients.FindAsync(creationDto.Patient.IdPatient);
+            if (patient == null)
+            {
+                patient = new Patient
+                {
+                    FirstName = creationDto.Patient.FirstName,
+                    LastName = creationDto.Patient.LastName,
+                    Birthdate = creationDto.Patient.Birthdate
+                };
+                _context.Patients.Add(patient);
+            } else
+            {
+                if (!string.Equals(patient.FirstName, creationDto.Patient.FirstName, StringComparison.OrdinalIgnoreCase) ||
+                    !string.Equals(patient.LastName, creationDto.Patient.LastName, StringComparison.OrdinalIgnoreCase) ||
+                    patient.Birthdate.Date != creationDto.Patient.Birthdate.Date)
+                {
+                    throw new BadHttpRequestException("Provided patient data does not match existing patient.");
+                }
+            }
+            
+            await _context.SaveChangesAsync();
+        
+            var prescription = new Prescription
+            {
+                Date = creationDto.Date,
+                DueDate = creationDto.DueDate,
+                Doctor = doctor,
+                Patient = patient
+            };
+
+            _context.Prescriptions.Add(prescription);
+        
+            await _context.SaveChangesAsync();
+        
+            foreach (var m in creationDto.Medicaments)
+            {
+                var prescriptionMedicament = new PrescriptionMedicament
+                {
+                    IdPrescription = prescription.IdPrescription,
+                    IdMedicament = m.IdMedicament,
+                    Dose = m.Dose,
+                    Details = m.Description
+                };
+                _context.PrescriptionMedicaments.Add(prescriptionMedicament);
+            }
+
+            await _context.SaveChangesAsync(); 
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
         {
-            IdPrescription = prescription.IdPrescription,
-            IdMedicament = m.IdMedicament,
-            Dose = m.Dose,
-            Details = m.Description
-        };
-        _context.PrescriptionMedicaments.Add(prescriptionMedicament);
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
-
-    await _context.SaveChangesAsync();
-}
     
     public async Task<PatientPrescriptionsDto> GetPatientByIdAsync(int patientId)
     {
